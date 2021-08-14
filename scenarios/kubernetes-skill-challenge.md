@@ -162,4 +162,125 @@ spec:
             - containerPort: 5432
 
 
+#### Sixth task
+
+A service is needed to access the Results database.
+
+Create a Kubernetes Service called db.
+
+Ensure the service is the type ClusterIP.
+
+Ensure the exposed port is 5432.
+
+Label the Service as app=db.
+
+
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: db
+  labels:
+    app: db
+spec:
+  type: ClusterIP
+  ports:
+    - port: 5432
+      targetPort: 5432
+      protocol: TCP
+  selector:
+    app: db
+
+#### Seventh task
+
+
+
+For the Voting web interface, a Python web application is already written and packaged in a public container image dockersamples/examplevotingapp_result:latest.
+
+Create a single Deployment and name it result.
+
+Label the Deployment as app=result.
+
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: result
+  labels:
+    app: result
+spec:
+  selector:
+    matchLabels:
+      app: result
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: result
+    spec:
+      containers:
+        - name: result
+          image: dockersamples/examplevotingapp_result:latest
+          ports:
+            - containerPort: 80
+
+#### EIght task
+
+A service is needed to access the Voting web interface.
+
+Create a Kubernetes Service called result.
+
+Ensure the service is the type NodePort.
+
+Ensure the exposed Voting nodePort is 32001 that connects to port 80.
+
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: result
+  labels:
+    app: result
+spec:
+  type: NodePort
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+      nodePort: 32001
+  selector:
+    app: result
+
+
+#### Nineth task
+
+Lastly, an application is needed that tallies the votes from Redis and publishes totals to Postgres.
+
+A .NET application is already written and packaged in a public container image dockersamples/examplevotingapp_worker:latest.
+
+Create a single Deployment and name it worker.
+
+A Service is not needed since it just works in the background.
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker
+  labels:
+    app: worker
+spec:
+  selector:
+    matchLabels:
+      app: worker
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: worker
+    spec:
+      containers:
+        - name: worker
+          image: dockersamples/examplevotingapp_worker:latest
+          ports:
+            - containerPort: 80
 
