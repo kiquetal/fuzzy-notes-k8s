@@ -47,3 +47,19 @@ spec:
     protocol: TCP
   selector:
     app: nginx-two
+
+
+### Check services
+
+	kubectl get services
+	
+	kubectl apply -f nginx.yaml
+
+### For expose
+	
+	kubectl expose pod nginx-one --type=NodePort
+
+### To advance edit
+	
+	kubectl edit service nginx-one     
+	
