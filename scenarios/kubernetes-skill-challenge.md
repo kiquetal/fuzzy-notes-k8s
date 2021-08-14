@@ -118,3 +118,48 @@ spec:
   selector:
     app: voting
 
+#### Fifth Task
+
+The voting solution needs to present the Results.
+
+Deploy a Postgres database packaged in a container image postgres:9.6.20-alpine.
+
+Create a single Deployment and name it db.
+
+Also, add the environment variables (using kubectl set env)to the deployed container:
+
+POSTGRES_DB=db, POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_HOST_AUTH_METHOD=trust
+Label the Deployment as app=db.
+
+kubectl set env deployment/db  POSTGRES_DB=db
+kubectl set env deployment/db  POSTGRES_USER=postgres
+kubectl set env deployment/db  POSTGRES_PASSWORD=postgres
+kubectl set env deployment/db  POSTGRES_HOST_AUTH_METHOD=trust
+
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db
+  labels:
+    app: db
+spec:
+  selector:
+    matchLabels:
+      app: db
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: db
+    spec:
+      containers:
+        - name: db
+          image: postgres:9.6.20-alpine
+          ports:
+            - containerPort: 5432
+
+
+
