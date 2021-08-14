@@ -95,6 +95,13 @@ Create a Kubernetes Service called voting. Ensure the service is the type NodePo
 Ensure the exposed Voting nodePort is 32000 which connects to port 80. Label the Service as app=voting.
 
 
+Port exposes the Kubernetes service on the specified port within the cluster. Other pods within the cluster can communicate with this server on the specified port.
+
+TargetPort is the port on which the service will send requests to, that your pod will be listening on. Your application in the container will need to be listening on this port also.
+
+NodePort exposes a service externally to the cluster by means of the target nodes IP address and the NodePort. NodePort is the default setting if the port field is not specified
+
+
 apiVersion: v1
 kind: Service
 metadata:
