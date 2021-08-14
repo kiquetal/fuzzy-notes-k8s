@@ -61,5 +61,9 @@ spec:
 
 ### To advance edit
 	
-	kubectl edit service nginx-one     
+	kubectl edit service nginx-one    
+
+### Declare namespaces
+
+	kubectl create namespace rabbit 
 	
