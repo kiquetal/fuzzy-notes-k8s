@@ -85,3 +85,112 @@ kubectl create -f consume-via-cli.yaml
 -    through the system environment variables accessible by the application,
 -    through a specific read-only file accessible by the application.
 
+file: consume-via-env.yaml
+
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: consume-via-env
+spec:
+  containers:
+    - name: consuming-container
+      image: k8s.gcr.io/busybox
+      command: [ "/bin/sh", "-c", "env" ]
+      envFrom:
+      - configMapRef:
+          name: ucs-info
+  restartPolicy: Never
+```
+
+file: consume-via-vol.yaml
+
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: consume-via-vol
+spec:
+  containers:
+    - name: consuming-container
+      image: k8s.gcr.io/busybox
+      command: [ "/bin/sh","-c","cat /etc/config/keys" ]
+      volumeMounts:
+      - name: config-volume
+        mountPath: /etc/config
+  volumes:
+    - name: config-volume
+      configMap:
+        name: ucs-info
+        items:
+        - key: ucs-org
+          path: keys
+  restartPolicy: Never
+```
+
+ #### Creating password
+
+```
+kubectl create secret generic db-password --from-literal=password=MyDbPassw0rd
+```
+
+see the file
+
+```
+kubectl get secret db-password -o yaml
+```
+
+secret.yaml
+
+```
+apiVersion: v1
+kind: Secret
+metadata:
+  name: db-creds
+type: Opaque
+data:
+  username: dXNlcgo=
+  password: TXlEYlBhc3N3MHJkCg==
+```
+
+from 
+
+```
+echo MyDbPassw0rd | base64
+```
+
+Using `dry-run` for create base64
+
+```
+kubectl create secret generic db-password --from-literal=password=MyDbPassw0rd --dry-run -o yaml > my-secret.yaml
+```
+
+kuard.yaml
+
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kuard
+  labels:
+    app: kuard
+spec:
+  containers:
+  - image: gcr.io/kuar-demo/kuard-amd64:1
+    name: kuard
+    ports:
+    - containerPort: 8080
+      name: http
+      protocol: TCP
+    env:
+    - name: SECRET_USERNAME
+      valueFrom:
+        secretKeyRef:
+          name: db-creds
+          key: username
+    - name: SECRET_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: db-creds
+          key: password
+```
