@@ -20,7 +20,7 @@ kubectl describe configmap mountains
 kubectl delete configmap mountains
 ```
 
-ucs-org.yaml
+file: ucs-org.yaml
 
 ``` 
 apiVersion: v1
@@ -39,11 +39,43 @@ data:
     director="Kathleen Rest"
     president="Kenneth Kimmell"
     founder="Kurt Gottfried"
-    concerns="Global warming and developing sustainable ways to feed, power, and transport ourselves, to fighting misinformation, advancing racial equity, and reducing the threat of nuclear war."
+    concerns="Global warming and developing sustacinable ways to feed, power, and transport ourselves, to fighting misinformation, advancing racial equity, and reducing the threat of nuclear war."
     website="ucsusa.org"
 ```
 
+```
+kubectl create -f ucs-org.yaml
+kubectl describe configmap ucs-info
+```
 
+
+file: consume-cli.yaml
+
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: consume-via-cli
+spec:
+  containers:
+    - name: consuming-container
+      image: k8s.gcr.io/busybox
+      command: [ "/bin/sh", "-c", "echo $(PROPERTY_ONE_KEY); echo $(UCS_INFO); env" ]
+      env:
+        - name: PROPERTY_ONE_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: ucs-info
+              key: property.1
+        - name: UCS_INFO
+          valueFrom:
+            configMapKeyRef:
+              name: ucs-info
+              key: ucs-org
+  restartPolicy: Never
+```
+
+kubectl create -f consume-via-cli.yaml
 
 ### Three access techniques
 
@@ -52,3 +84,4 @@ data:
 -   through the application command-line arguments,
 -    through the system environment variables accessible by the application,
 -    through a specific read-only file accessible by the application.
+
